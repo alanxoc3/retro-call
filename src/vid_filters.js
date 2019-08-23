@@ -1,13 +1,4 @@
-// export let invertImage = (ctx, w, h) => {
-// let imageData = ctx.getImageData(0, 0, w, h);
-// let data = imageData.data;
-// for (let i = 0; i < data.length; i += 4) {
-// data[i]     = 255 - data[i];     // red
-// data[i + 1] = 255 - data[i + 1]; // green
-// data[i + 2] = 255 - data[i + 2]; // blue
-// }
-// return imageData;
-// }
+export let DIM = 32
 
 let p8_pal = [
    0, 0, 0,
@@ -51,19 +42,18 @@ let rgb_to_pico8 = (pr, pg, pb) => {
 }
 
 export let pico8ify = (bctx, ctx, scale) => {
-   let w = scale * 128
-   let h = scale * 128
-   let b_im = bctx.getImageData(0, 0, 128, 128);
+   let w = scale * DIM
+   let h = scale * DIM
+   let b_im = bctx.getImageData(0, 0, DIM, DIM);
    let data = b_im.data;
 
    ctx.clearRect(0,0,w,h)
    for (let i = 0, step = 0; i < data.length; i += 4, ++step) {
       let new_data = rgb_to_pico8(data[i], data[i+1], data[i+2])
-      let c = step % 128
-      let r = Math.floor(step / 128)
+      let c = step % DIM
+      let r = Math.floor(step / DIM)
       ctx.fillStyle = 'rgb(' + new_data[0] + ', ' + new_data[1] + ', ' + new_data[2] + ')';
       ctx.fillRect(c*scale, r*scale, scale, scale)
    }
-
 }
 

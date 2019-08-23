@@ -3,9 +3,6 @@ var camera = (function() {
    let video, canvas, context;
    let renderTimer;
 
-   let audioCtx = new AudioContext();
-   // var buffer = audioCtx.createBuffer(1, 22050, 22050);
-
    async function initVideoStream() {
       video = document.createElement("video");
       video.setAttribute('width', options.width);
@@ -25,20 +22,6 @@ var camera = (function() {
 
             initCanvas();
          }).catch(options.onError);
-
-         await navigator.mediaDevices.getUserMedia({
-            audio: {
-               optional: [{ echoCancellation: false }]
-            },
-            facingMode: "user",
-         }).then((stream) => {
-            var source = audioCtx.createMediaStreamSource( stream );
-            options.distort_audio(audioCtx, source);
-            source.start();
-         }).catch(options.onError);
-
-      } else {
-         options.onNotSupported();
       }
    }
 
@@ -46,10 +29,8 @@ var camera = (function() {
       canvas = options.targetCanvas || document.createElement("canvas");
       canvas.setAttribute('width', options.width);
       canvas.setAttribute('height', options.height);
-
       context = canvas.getContext('2d');
 
-      // mirror video
       if (options.mirror) {
          context.translate(canvas.width, 0);
          context.scale(-1, 1);
@@ -72,20 +53,11 @@ var camera = (function() {
 
    return {
       init: async function(captureOptions) {
-         var doNothing = function(){};
-
          options = captureOptions || {};
 
          options.fps = options.fps || 30;
-         options.width = options.width || 640;
-         options.height = options.height || 480;
          options.mirror = options.mirror || false;
          options.targetCanvas = options.targetCanvas || null;
-
-         options.onSuccess = options.onSuccess || doNothing;
-         options.onError = options.onError || doNothing;
-         options.onNotSupported = options.onNotSupported || doNothing;
-         options.onFrame = options.onFrame || doNothing;
 
          await initVideoStream();
       },
