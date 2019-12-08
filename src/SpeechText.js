@@ -1,7 +1,6 @@
 import React from 'react';
 import './SpeechText.css';
 
-
 function play_note(note) {
    let note_map = {
       a: 880.0000,
@@ -30,6 +29,7 @@ function play_note(note) {
    }
 }
 
+
 class SpeechText extends React.Component {
    constructor() {
       super();
@@ -42,7 +42,7 @@ class SpeechText extends React.Component {
       this.recognition = new SpeechRecognition();
 
       this.recognition.continuous = true;
-      this.recognition.lang = 'en-US';
+      this.recognition.lang = 'zh-CN';
       this.recognition.interimResults = false;
       this.recognition.maxAlternatives = 1;
 
@@ -57,8 +57,25 @@ class SpeechText extends React.Component {
          }, Math.log(this.state.transcript.length+1)*1000)
       }
 
+      this.recognition.onspeechstart = () => {
+         console.log("Speech started?")
+      }
+
       this.recognition.onerror = (e) => {
-         this.setState({transcript: 'Error occurred in recognition: ' + e.error});
+         console.error('recognition error', e);
+         switch (e.error) {
+            case 'not-allowed':
+            case 'service-not-allowed':
+               alert('Something went wrong with speech recognition. Try refreshing.');
+               break;
+            case 'no-speech':
+               this.recognition.abort()
+               this.setup()
+               break;
+            case 'network':
+            default:
+               break;
+         }
       }
 
       this.recognition.start();
