@@ -42,8 +42,8 @@ class SpeechText extends React.Component {
       this.recognition = new SpeechRecognition();
 
       this.recognition.continuous = true;
-      this.recognition.lang = 'zh-CN';
-      this.recognition.interimResults = false;
+      this.recognition.lang = 'en-US';
+      this.recognition.interimResults = true;
       this.recognition.maxAlternatives = 1;
 
       this.recognition.onresult = (e) => {
