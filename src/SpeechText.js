@@ -1,39 +1,50 @@
 import React from 'react';
 import './SpeechText.css';
 
-function play_note(note) {
-   let note_map = {
-      a: 880.0000,
-      b: 987.7666,
-      c: 523.2511,
-      d: 587.3295,
-      e: 659.2551,
-      f: 698.4565,
-      g: 783.9909,
-      0: 932.3275,
-      1: 830.6094,
-      2: 739.9888,
-      3: 622.2540,
-      4: 554.3653
-   }
-
-   var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-   if (note_map[note]) {
-      // create Oscillator node
-      var oscillator = audioCtx.createOscillator();
-      oscillator.type = 'square';
-      oscillator.frequency.setValueAtTime(note_map[note], audioCtx.currentTime); // value in hertz
-      oscillator.connect(audioCtx.destination);
-      oscillator.start();
-      // end
-   }
+let note_map = {
+   a: 880.0000,
+   b: 987.7666,
+   c: 523.2511,
+   d: 587.3295,
+   e: 659.2551,
+   f: 698.4565,
+   g: 783.9909,
+   0: 932.3275,
+   1: 830.6094,
+   2: 739.9888,
+   3: 622.2540,
+   4: 554.3653
 }
-
 
 class SpeechText extends React.Component {
    constructor() {
       super();
       this.state = {transcript: ""};
+   }
+
+   play_note = (note, oscillator_number) => {
+      if (note_map[note]) {
+         this.oscillators[oscillator_number].frequency.setValueAtTime(note_map[note], this.audioCtx.currentTime);
+      }
+   }
+
+   setup_tones = () => {
+      this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      this.gainNode = this.audioCtx.createGain();
+
+      this.oscillators = [
+         this.audioCtx.createOscillator(),
+         this.audioCtx.createOscillator()
+      ]
+
+      this.oscillators.forEach((x) => {
+         x.type = 'sawtooth';
+         x.frequency.setValueAtTime(880, this.audioCtx.currentTime);
+         x.connect(this.gainNode);
+         x.start();
+      })
+
+      this.gainNode.connect(this.audioCtx.destination);
    }
 
    setup = () => {
@@ -53,7 +64,7 @@ class SpeechText extends React.Component {
          clearTimeout(this.timeout)
          this.timeout = setTimeout(() => {
             this.setState({transcript: ''});
-            play_note('a')
+            this.play_note('c', 1)
          }, Math.log(this.state.transcript.length+1)*1000)
       }
 
@@ -82,6 +93,7 @@ class SpeechText extends React.Component {
    }
 
    componentDidMount() {
+      this.setup_tones();
       this.setup();
    }
 
